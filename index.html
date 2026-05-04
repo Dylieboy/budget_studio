@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Budget Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section class="auth-screen" id="authScreen">
+      <div class="auth-panel">
+        <div class="brand auth-brand">
+          <div class="brand-mark">$</div>
+          <div>
+            <p class="eyebrow">Budget Studio</p>
+            <h1 id="authTitle">Log in</h1>
+          </div>
+        </div>
+
+        <form class="auth-form" id="authForm">
+          <label>
+            Email
+            <input id="authEmail" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            Password
+            <input id="authPassword" type="password" autocomplete="current-password" minlength="8" required />
+          </label>
+          <p class="auth-error" id="authError" role="alert"></p>
+          <button class="primary-button" id="authSubmitButton" type="submit">Log in</button>
+        </form>
+
+        <button class="text-button" id="authModeButton" type="button">Create an account</button>
+      </div>
+    </section>
+
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <main class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand">
+          <div class="brand-mark">$</div>
+          <div>
+            <p class="eyebrow">Budget Studio</p>
+            <h1>Money command</h1>
+          </div>
+        </div>
+
+        <nav class="nav-stack" aria-label="Sections">
+          <a href="#overview" class="nav-link active" data-page-link="overview">Overview</a>
+          <a href="#transactions" class="nav-link" data-page-link="transactions">Transactions</a>
+          <a href="#debts" class="nav-link" data-page-link="debts">Debt notes</a>
+          <a href="#savings" class="nav-link" data-page-link="savings">Savings goals</a>
+        </nav>
+
+        <section class="side-panel">
+          <p class="panel-label">This month</p>
+          <strong id="monthLabel">May 2026</strong>
+          <span id="healthText">Add income and expenses to start.</span>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <div class="mobile-header">
+          <button class="menu-button" id="menuButton" type="button" aria-label="Open menu" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <strong>Budget Studio</strong>
+        </div>
+
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Personal finance tracker</p>
+            <h2 id="pageTitle">Plan spending. Track debt. Stay ahead.</h2>
+          </div>
+          <div class="topbar-actions">
+            <label class="currency-control">
+              Currency
+              <select id="currencySelect" aria-label="Currency">
+                <option value="USD">USD</option>
+                <option value="ZAR">ZAR</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="NZD">NZD</option>
+                <option value="AUD">AUD</option>
+              </select>
+            </label>
+            <button class="ghost-button" id="resetDemoButton" type="button">Clear all data</button>
+            <button class="ghost-button" id="logoutButton" type="button">Log out</button>
+          </div>
+        </header>
+
+        <section class="page active" id="overview" data-page="overview">
+          <section class="metrics-grid" aria-label="Budget overview">
+            <article class="metric metric-income">
+              <span>Income</span>
+              <strong id="incomeTotal">$0.00</strong>
+            </article>
+            <article class="metric metric-expense">
+              <span>Expenses</span>
+              <strong id="expenseTotal">$0.00</strong>
+            </article>
+            <article class="metric metric-balance">
+              <span>Left to spend</span>
+              <strong id="balanceTotal">$0.00</strong>
+            </article>
+            <article class="metric metric-debt">
+              <span>Debt remaining</span>
+              <strong id="debtTotal">$0.00</strong>
+            </article>
+            <article class="metric metric-savings">
+              <span>Savings saved</span>
+              <strong id="savingsTotal">$0.00</strong>
+            </article>
+          </section>
+
+          <section class="overview-grid">
+            <article class="tool-section">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Next payments</p>
+                  <h3>Upcoming debt notes</h3>
+                </div>
+              </div>
+              <ul class="item-list compact-list" id="overviewDebtList" aria-live="polite"></ul>
+            </article>
+            <article class="tool-section">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Savings</p>
+                  <h3>Goal progress</h3>
+                </div>
+              </div>
+              <ul class="item-list compact-list" id="overviewSavingsList" aria-live="polite"></ul>
+            </article>
+          </section>
+        </section>
+
+        <section class="page" id="transactions" data-page="transactions">
+          <section class="tool-section">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Budget activity</p>
+                <h3>Add income or expenses</h3>
+              </div>
+            </div>
+
+            <form class="entry-form" id="transactionForm">
+              <label>
+                Description
+                <input id="transactionName" type="text" placeholder="Salary, rent, groceries..." required />
+              </label>
+              <label>
+                Amount
+                <input id="transactionAmount" type="number" min="0.01" step="0.01" placeholder="0.00" required />
+              </label>
+              <label>
+                Type
+                <select id="transactionType">
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                </select>
+              </label>
+              <button class="primary-button" type="submit">Add entry</button>
+            </form>
+
+            <div class="list-header">
+              <h4>Recent entries</h4>
+              <button class="text-button" id="clearTransactionsButton" type="button">Clear</button>
+            </div>
+            <ul class="item-list" id="transactionList" aria-live="polite"></ul>
+          </section>
+        </section>
+
+        <section class="page" id="debts" data-page="debts">
+          <section class="tool-section debt-section">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Debt notes</p>
+                <h3>Remember what to pay</h3>
+              </div>
+            </div>
+
+            <form class="entry-form debt-form" id="debtForm">
+              <label>
+                Person or account
+                <input id="debtName" type="text" placeholder="Credit card, Mom, store account..." required />
+              </label>
+              <label>
+                Amount owed
+                <input id="debtAmount" type="number" min="0.01" step="0.01" placeholder="0.00" required />
+              </label>
+              <label>
+                Due date
+                <input id="debtDueDate" type="date" required />
+              </label>
+              <label class="wide-field">
+                Note
+                <textarea id="debtNote" rows="3" placeholder="Minimum payment, reference number, promise date..."></textarea>
+              </label>
+              <button class="primary-button" type="submit">Save debt note</button>
+            </form>
+
+            <div class="list-header">
+              <h4>Payment reminders</h4>
+              <button class="text-button" id="clearPaidButton" type="button">Remove paid</button>
+            </div>
+            <ul class="item-list debt-list" id="debtList" aria-live="polite"></ul>
+          </section>
+        </section>
+
+        <section class="page" id="savings" data-page="savings">
+          <section class="tool-section">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Savings goals</p>
+                <h3>Add as many goals as you want</h3>
+              </div>
+            </div>
+
+            <form class="entry-form savings-form" id="savingsForm">
+              <label>
+                Goal name
+                <input id="savingsName" type="text" placeholder="Emergency fund, new laptop, holiday..." required />
+              </label>
+              <label>
+                Target
+                <input id="savingsTarget" type="number" min="0.01" step="0.01" placeholder="0.00" required />
+              </label>
+              <label>
+                Saved now
+                <input id="savingsCurrent" type="number" min="0" step="0.01" placeholder="0.00" />
+              </label>
+              <label>
+                Target date
+                <input id="savingsDueDate" type="date" />
+              </label>
+              <button class="primary-button" type="submit">Add savings goal</button>
+            </form>
+
+            <div class="list-header">
+              <h4>Your goals</h4>
+              <button class="text-button" id="clearCompletedGoalsButton" type="button">Remove completed</button>
+            </div>
+            <ul class="item-list savings-list" id="savingsList" aria-live="polite"></ul>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
