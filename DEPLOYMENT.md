@@ -2,7 +2,7 @@
 
 This app is split into two hosted pieces:
 
-- **Render** runs the Python API and Postgres database.
+- **Railway** runs the Python API and Postgres database.
 - **Vercel** hosts the static frontend files.
 
 ## 1. Push the Project to GitHub
@@ -16,33 +16,53 @@ This app is split into two hosted pieces:
    - `config.js`
    - `server.py`
    - `requirements.txt`
-   - `render.yaml`
+   - `railway.json`
    - `vercel.json`
 
-## 2. Deploy the API and Database on Render
+## 2. Create the API Service on Railway
 
-1. Open Render and choose **New +**.
-2. Choose **Blueprint**.
-3. Connect your GitHub repository.
-4. Select this repo and let Render read `render.yaml`.
-5. Render should create:
-   - a Python web service named `budget-studio-api`
-   - a Postgres database named `budget-studio-db`
-6. In the API service, set or confirm these environment variables:
+1. Open Railway.
+2. Create a new project.
+3. Choose **Deploy from GitHub repo**.
+4. Select your `budget-studio` repository.
+5. Railway will read `railway.json`.
+6. Confirm these settings if Railway asks:
 
 ```text
-HOST=0.0.0.0
+Build Command: pip install -r requirements.txt
+Start Command: python server.py
+Healthcheck Path: /api/health
+```
+
+7. Open the API service **Variables** tab.
+8. Add:
+
+```text
 COOKIE_SECURE=true
 COOKIE_SAMESITE=None
 CORS_ORIGINS=https://your-vercel-app.vercel.app
-DATABASE_URL=<filled automatically from Render Postgres>
 ```
 
-7. Deploy the Render service.
-8. Open this URL after deploy finishes:
+Do not add `PORT`; Railway provides it automatically.
+
+## 3. Add Postgres on Railway
+
+1. In the same Railway project, click **+ New**.
+2. Add a **PostgreSQL** database.
+3. Open your Python API service.
+4. Add or link this variable:
 
 ```text
-https://your-render-api.onrender.com/api/health
+DATABASE_URL=${{Postgres.DATABASE_URL}}
+```
+
+If Railway named the database service something else, use that service name instead of `Postgres`.
+
+5. Redeploy the Python API service.
+6. Open this URL after deploy finishes:
+
+```text
+https://your-railway-api.up.railway.app/api/health
 ```
 
 It should show:
@@ -51,7 +71,7 @@ It should show:
 {"ok": true}
 ```
 
-## 3. Deploy the Frontend on Vercel
+## 4. Deploy the Frontend on Vercel
 
 1. Open Vercel and choose **Add New Project**.
 2. Import the same GitHub repository.
@@ -71,31 +91,31 @@ Install Command: leave empty
 https://budget-studio.vercel.app
 ```
 
-## 4. Connect Vercel to Render
+## 5. Connect Vercel to Railway
 
-1. Copy your Render API URL, for example:
+1. Copy your Railway API public URL, for example:
 
 ```text
-https://budget-studio-api.onrender.com
+https://budget-studio-api.up.railway.app
 ```
 
 2. Update `config.js`:
 
 ```js
-window.BUDGET_API_BASE_URL = "https://budget-studio-api.onrender.com";
+window.BUDGET_API_BASE_URL = "https://budget-studio-api.up.railway.app";
 ```
 
 3. Push that change to GitHub.
 4. Vercel will redeploy automatically.
-5. Go back to Render and update `CORS_ORIGINS` to your exact Vercel URL:
+5. Go back to Railway and update the API service variable:
 
 ```text
-https://budget-studio.vercel.app
+CORS_ORIGINS=https://budget-studio.vercel.app
 ```
 
-6. Redeploy or restart the Render API.
+6. Redeploy or restart the Railway API service.
 
-## 5. Test Production
+## 6. Test Production
 
 1. Open your Vercel URL.
 2. Create a new account.
@@ -107,7 +127,7 @@ https://budget-studio.vercel.app
 
 ## Local Development
 
-The production backend now expects Postgres. Set `DATABASE_URL` before running locally:
+The production backend expects Postgres. Set `DATABASE_URL` before running locally:
 
 ```powershell
 $env:DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE"
@@ -130,4 +150,6 @@ window.BUDGET_API_BASE_URL = "";
 
 - The old local SQLite file is no longer used.
 - No migration from SQLite is included.
-- If login cookies do not behave reliably across `vercel.app` and `onrender.com`, use custom domains later, such as `app.yourdomain.com` and `api.yourdomain.com`.
+- Railway provides `PORT` automatically; the server uses it.
+- Railway Postgres provides `DATABASE_URL`; the API uses it.
+- If login cookies do not behave reliably across `vercel.app` and `up.railway.app`, use custom domains later, such as `app.yourdomain.com` and `api.yourdomain.com`.

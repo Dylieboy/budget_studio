@@ -32,7 +32,7 @@ COOKIE_SAMESITE = os.environ.get("COOKIE_SAMESITE", "None" if COOKIE_SECURE else
 
 def connect() -> psycopg.Connection:
     if not DATABASE_URL:
-        raise RuntimeError("DATABASE_URL is required. Set it to your Render Postgres Internal Database URL.")
+        raise RuntimeError("DATABASE_URL is required. Set it to your Railway Postgres DATABASE_URL.")
     return psycopg.connect(DATABASE_URL, row_factory=dict_row)
 
 
@@ -298,7 +298,8 @@ class BudgetHandler(SimpleHTTPRequestHandler):
 
 if __name__ == "__main__":
     init_db()
-    host = os.environ.get("HOST", "127.0.0.1")
+    default_host = "0.0.0.0" if os.environ.get("RAILWAY_ENVIRONMENT") else "127.0.0.1"
+    host = os.environ.get("HOST", default_host)
     port = int(os.environ.get("PORT", "8000"))
     server = ThreadingHTTPServer((host, port), BudgetHandler)
     print(f"Budget Studio running at http://{host}:{port}")
