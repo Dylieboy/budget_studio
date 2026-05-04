@@ -1,9 +1,16 @@
 # Deployment
 
-This app is split into two hosted pieces:
+This version deploys everything from one Vercel project:
 
-- **Railway** runs the Python API and Postgres database.
-- **Vercel** hosts the static frontend files.
+- Static frontend files: `index.html`, `styles.css`, `app.js`
+- API routes: `api/*.js`
+- Database: Vercel Marketplace Postgres, such as Neon
+
+`config.js` should stay empty for Vercel because the frontend and API use the same domain:
+
+```js
+window.BUDGET_API_BASE_URL = "";
+```
 
 ## 1. Push the Project to GitHub
 
@@ -14,55 +21,52 @@ This app is split into two hosted pieces:
    - `styles.css`
    - `app.js`
    - `config.js`
-   - `server.py`
-   - `requirements.txt`
-   - `railway.json`
+   - `package.json`
    - `vercel.json`
+   - `api/health.js`
+   - `api/signup.js`
+   - `api/login.js`
+   - `api/logout.js`
+   - `api/me.js`
+   - `api/data.js`
+   - `api/_lib.js`
 
-## 2. Create the API Service on Railway
+## 2. Deploy on Vercel
 
-1. Open Railway.
-2. Create a new project.
-3. Choose **Deploy from GitHub repo**.
-4. Select your `budget-studio` repository.
-5. Railway will read `railway.json`.
-6. Confirm these settings if Railway asks:
+1. Open Vercel.
+2. Choose **Add New Project**.
+3. Import your GitHub repo.
+4. Use these settings:
 
 ```text
-Build Command: pip install -r requirements.txt
-Start Command: python server.py
-Healthcheck Path: /api/health
+Framework Preset: Other
+Build Command: leave empty
+Output Directory: leave empty
+Install Command: npm install
 ```
 
-7. Open the API service **Variables** tab.
-8. Add:
+5. Click **Deploy**.
+
+## 3. Add the Database on Vercel
+
+1. Open your Vercel project.
+2. Go to **Storage** or **Marketplace**.
+3. Add a **Postgres** database. Neon is the usual Vercel Marketplace option.
+4. Connect the database to this Vercel project.
+5. Confirm Vercel adds this environment variable:
 
 ```text
-COOKIE_SECURE=true
-COOKIE_SAMESITE=None
-CORS_ORIGINS=https://your-vercel-app.vercel.app
+DATABASE_URL
 ```
 
-Do not add `PORT`; Railway provides it automatically.
+6. Redeploy the project after the database is connected.
 
-## 3. Add Postgres on Railway
+## 4. Test the API
 
-1. In the same Railway project, click **+ New**.
-2. Add a **PostgreSQL** database.
-3. Open your Python API service.
-4. Add or link this variable:
+After redeploying, open:
 
 ```text
-DATABASE_URL=${{Postgres.DATABASE_URL}}
-```
-
-If Railway named the database service something else, use that service name instead of `Postgres`.
-
-5. Redeploy the Python API service.
-6. Open this URL after deploy finishes:
-
-```text
-https://your-railway-api.up.railway.app/api/health
+https://your-vercel-app.vercel.app/api/health
 ```
 
 It should show:
@@ -71,53 +75,9 @@ It should show:
 {"ok": true}
 ```
 
-## 4. Deploy the Frontend on Vercel
+## 5. Test the App
 
-1. Open Vercel and choose **Add New Project**.
-2. Import the same GitHub repository.
-3. Use these settings:
-
-```text
-Framework Preset: Other
-Build Command: leave empty
-Output Directory: leave empty
-Install Command: leave empty
-```
-
-4. Deploy.
-5. Copy the final Vercel production URL, for example:
-
-```text
-https://budget-studio.vercel.app
-```
-
-## 5. Connect Vercel to Railway
-
-1. Copy your Railway API public URL, for example:
-
-```text
-https://budget-studio-api.up.railway.app
-```
-
-2. Update `config.js`:
-
-```js
-window.BUDGET_API_BASE_URL = "https://budget-studio-api.up.railway.app";
-```
-
-3. Push that change to GitHub.
-4. Vercel will redeploy automatically.
-5. Go back to Railway and update the API service variable:
-
-```text
-CORS_ORIGINS=https://budget-studio.vercel.app
-```
-
-6. Redeploy or restart the Railway API service.
-
-## 6. Test Production
-
-1. Open your Vercel URL.
+1. Open your Vercel app URL.
 2. Create a new account.
 3. Confirm the dashboard starts empty.
 4. Add one transaction, one debt note, and one savings goal.
@@ -127,29 +87,29 @@ CORS_ORIGINS=https://budget-studio.vercel.app
 
 ## Local Development
 
-The production backend expects Postgres. Set `DATABASE_URL` before running locally:
+For a full local API test, install dependencies and set `DATABASE_URL`:
 
 ```powershell
+npm install
 $env:DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE"
-python server.py
 ```
 
-Then open:
+Then run with Vercel CLI:
+
+```powershell
+npx vercel dev
+```
+
+Open:
 
 ```text
-http://127.0.0.1:8000
-```
-
-Keep `config.js` empty for local same-origin testing:
-
-```js
-window.BUDGET_API_BASE_URL = "";
+http://localhost:3000
 ```
 
 ## Notes
 
+- Railway and Render are no longer needed.
 - The old local SQLite file is no longer used.
-- No migration from SQLite is included.
-- Railway provides `PORT` automatically; the server uses it.
-- Railway Postgres provides `DATABASE_URL`; the API uses it.
-- If login cookies do not behave reliably across `vercel.app` and `up.railway.app`, use custom domains later, such as `app.yourdomain.com` and `api.yourdomain.com`.
+- The old Python server is no longer used.
+- User data is stored in Postgres as one JSON document per account.
+- Passwords are hashed before storage.
